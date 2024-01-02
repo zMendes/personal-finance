@@ -15,7 +15,8 @@ class Item(models.Model):
     }
     PAYMENT = {
         'debit':'debit',
-        'credit':'credit'
+        'credit':'credit',
+        'VR': 'VR'
     }
     description = models.CharField(max_length=200)
     date = models.DateTimeField(default=now)
