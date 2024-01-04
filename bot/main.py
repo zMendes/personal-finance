@@ -3,7 +3,11 @@ from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
 
 from telegram.ext import filters, MessageHandler, ApplicationBuilder, CallbackQueryHandler, ContextTypes
 import requests
-from constants import API_KEY, LEO_ID, TCHEL_ID, WRONG_FORMAT
+from constants import API_KEY, LEO_ID, TCHEL_ID
+
+WRONG_FORMAT = """Invalid message, please send the item as follows:\n
+<description>, <value>\n
+Example: Ifood Mc, 82"""
 
 class TelegramBot():
     def __init__(self) -> None:
