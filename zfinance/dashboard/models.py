@@ -4,7 +4,8 @@ from django.utils.timezone import now
 
 class User(models.Model):
     name = models.CharField(max_length=25, primary_key=True)
-
+    def __str__(self):
+        return f'{self.name}'
 
 class Item(models.Model):
 
@@ -31,3 +32,5 @@ class Item(models.Model):
                 fields=['date', 'item_user', 'value', 'description'], name='unique_migration_host_combination'
             )
         ]
+    def __str__(self):
+        return f'{self.description}, {self.value} - {self.item_user}'
