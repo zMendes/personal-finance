@@ -1,5 +1,5 @@
 from django.http import HttpResponse
-from dashboard.models import User, Item
+from dashboard.models import User, Account, Item
 from django.views.decorators.csrf import csrf_exempt
 import json
 
@@ -12,10 +12,11 @@ def insert_item(request):
     if request.method == 'POST':
         data = json.loads(request.body.decode('utf-8'))
         user = User.objects.get(name=data['user'])
+        account = Account.objects.get(owner=data['account'])
         item = Item(
             description = data['description'],
             item_user = user,
-            account = data['account'],
+            account_user = account,
             payment_type = data['payment'],
             value = data['value']
         )

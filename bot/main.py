@@ -7,7 +7,7 @@ from constants import API_KEY, LEO_ID, TCHEL_ID
 
 WRONG_FORMAT = """Invalid message, please send the item as follows:\n
 <description>, <value>\n
-Example: Ifood Mc, 82"""
+Example: Ifood Mc, 82.3"""
 
 class TelegramBot():
     def __init__(self) -> None:
@@ -54,7 +54,7 @@ class TelegramBot():
             if len(text) != 2:
                 raise(SyntaxError)
             self.item['description'] = text[0]
-            self.item['value'] = int(text[1])
+            self.item['value'] = float(text[1])
             await update.message.reply_text('Which account?', reply_markup=self.account_keyboard_markup)
 
         except:

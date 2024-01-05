@@ -7,13 +7,22 @@ class User(models.Model):
     def __str__(self):
         return f'{self.name}'
 
-class Item(models.Model):
+class Account(models.Model):
 
     ACCOUNT_CHOICES = {
-        'joint': 'joint',
-        'leo':'leo',
-        'tchel': 'tchel'
-    }
+            'joint': 'joint',
+            'leo':'leo',
+            'tchel': 'tchel'
+        }
+    owner = models.CharField(choices=ACCOUNT_CHOICES, max_length=8, primary_key=True)
+    balance = models.FloatField()
+    investments = models.FloatField()
+    
+    def __str__(self):
+        return f'{self.owner}'
+
+class Item(models.Model):
+
     PAYMENT = {
         'debit':'debit',
         'credit':'credit',
@@ -22,10 +31,10 @@ class Item(models.Model):
     description = models.CharField(max_length=200)
     date = models.DateTimeField(default=now)
     item_user = models.ForeignKey(User, on_delete=models.CASCADE)
-    account = models.CharField(choices=ACCOUNT_CHOICES, max_length=8)
+    account_user = models.ForeignKey(Account, on_delete=models.CASCADE)
     payment_type = models.CharField(choices=PAYMENT, max_length=8)
-    value = models.IntegerField()
-
+    value = models.FloatField()
+    
     class Meta:
         constraints = [
             models.UniqueConstraint(
