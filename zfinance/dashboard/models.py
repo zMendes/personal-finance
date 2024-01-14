@@ -32,11 +32,11 @@ class Movement(models.Model):
     PAYMENT = {"debit": "debit", "credit": "credit", "VR": "vr"}
     MOVEMENT_TYPE = {
         "investment": "investment",
-        "transfer": "transfer",
+        "transfer_out": "transfer_out",
+        "transfer_in": "transfer_in",
         "expenses": "expenses",
         "credit_card_bill": "credit_card_bill",
         "salary": "salary",
-        "add": "add",
     }
     description = models.CharField(max_length=200)
     date = models.DateTimeField(default=now)

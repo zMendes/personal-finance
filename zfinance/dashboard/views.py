@@ -18,22 +18,30 @@ def add_movement(request):
                 return process_expense(data)
             case "investment":
                 return move_to_investment(data)
-            case "transfer":
+            case "transfer_out":
                 return transfer_money(data)
             case "credit_card_bill":
                 return pay_credit_bill(data)
             case "salary":
                 return give_salary(data)
+            case "transfer_in":
+                return add_money(data)
 
 
-def add_money(request):
-    if request.method == "POST":
-        data = json.loads(request.body.decode("utf-8"))
-        owner = data["owner"]
-        value = data["value"]
-        account = Account.objects.get(owner=data["account"])
-        account.balance
-
+def add_money(data):
+    user = User.objects.get(name=data["user"])
+    account = Account.objects.get(owner=data["account"])
+    movement = Movement(
+        description=data['description'],
+        movement_user=user,
+        account_user=account,
+        payment_type=data['payment'],
+        transaction_type=data['type'],
+        value=data['value']
+    )
+    account.balance+= data['value']
+    movement.save()
+    return HttpResponse("Success. UwU")
 
 def process_expense(data):
     user = User.objects.get(name=data["user"])
