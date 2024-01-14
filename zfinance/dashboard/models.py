@@ -38,13 +38,13 @@ class Movement(models.Model):
         "credit_card_bill": "credit_card_bill",
         "salary": "salary",
     }
-    description = models.CharField(max_length=200)
+    description = models.CharField(max_length=200, null=True, default=None)
     date = models.DateTimeField(default=now)
     movement_user = models.ForeignKey(User, on_delete=models.CASCADE)
     account_user = models.ForeignKey(
         Account, on_delete=models.CASCADE, related_name="original_account"
     )
-    payment_type = models.CharField(choices=PAYMENT, max_length=8)
+    payment_type = models.CharField(choices=PAYMENT, max_length=8, null=True, default=None)
     to = models.ForeignKey(
         Account,
         on_delete=models.CASCADE,
@@ -58,10 +58,10 @@ class Movement(models.Model):
     class Meta:
         constraints = [
             models.UniqueConstraint(
-                fields=["date", "movement_user", "value", "description"],
+                fields=["date", "movement_user", "value"],
                 name="unique_migration_host_combination",
             )
         ]
 
     def __str__(self):
-        return f"{self.description}, {self.value} - {self.item_user}"
+        return f"{self.description}, {self.value} - {self.movement_user}"

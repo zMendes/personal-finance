@@ -44,29 +44,31 @@ class TelegramBot():
         else:
             return
 
-        text = update.message.text.split(",")
+        text = [x.strip() for x in update.message.text.lower().split(',')]
+
         try:
             if text[0] == 'investimento':
                 self.item['type'] = 'investment'
                 self.item['value'] = float(text[1])
                 self.item['account'] = self.item['user']
-                self.sendItem(self.item, context)
+                await self.sendItem(self.item, context)
             elif text[0] == 'transferencia':
+                self.item['account'] = self.item['user']
                 if text[1] == self.item['user']:
                     self.item['type'] = 'transfer_in'
+                    self.item['target_account'] = self.item['user']
                 else:
                     self.item['type'] = 'transfer_out'
-                if text[1] in ['casa', 'joint', 'home']:
-                    self.item['target_account'] = 'joint'
-                else:
-                    self.item['target_account'] = 'tchel'
+                    if text[1] in ['casa', 'joint', 'home']:
+                        self.item['target_account'] = 'joint'
+                    else:
+                        self.item['target_account'] = 'tchel'
                 self.item['value'] = float(text[2])
-                self.sendItem(self.item, context)
+                await self.sendItem(self.item, context)
 
             elif len(text) != 2:
                 raise (SyntaxError)
             else:
-
                 self.item['type'] = 'transfer_in'
                 self.item['description'] = text[0]
                 self.item['value'] = float(text[1])
@@ -93,6 +95,7 @@ class TelegramBot():
             await self.sendItem(self.item, context)
 
     async def sendItem(self, item, context):
+        print(item)
         requests.post("http://localhost:8080/dashboard/insert",
                       json=item, headers={'Content-Type': 'application/json'})
         await context.bot.sendMessage(chat_id=context._chat_id, text='Entry added to the database! uwu')
