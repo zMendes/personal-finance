@@ -3,11 +3,8 @@ from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
 
 from telegram.ext import filters, MessageHandler, ApplicationBuilder, CallbackQueryHandler, ContextTypes
 import requests
-from constants import API_KEY, LEO_ID, TCHEL_ID
+from constants import API_KEY, LEO_ID, TCHEL_ID, WRONG_FORMAT
 
-WRONG_FORMAT = """Invalid message, please send the item as follows:\n
-<description>, <value>\n
-Example: Ifood Mc, 82.3"""
 
 class TelegramBot():
     def __init__(self) -> None:
@@ -16,27 +13,26 @@ class TelegramBot():
             level=logging.INFO
         )
         self.account_keyboard = [
-                InlineKeyboardButton("Leo's", callback_data='leo'),
-                InlineKeyboardButton("Tchel's", callback_data='tchel'),
-                InlineKeyboardButton("Joint account", callback_data='joint')
-            ],
-        self.account_keyboard_markup = InlineKeyboardMarkup(self.account_keyboard)
+            InlineKeyboardButton("Leo's", callback_data='leo'),
+            InlineKeyboardButton("Tchel's", callback_data='tchel'),
+            InlineKeyboardButton("Joint account", callback_data='joint')
+        ],
+        self.account_keyboard_markup = InlineKeyboardMarkup(
+            self.account_keyboard)
 
         self.payment_keyboard = [
-                InlineKeyboardButton("Debit", callback_data='debit'),
-                InlineKeyboardButton("Credit", callback_data='credit'),
-                InlineKeyboardButton("VR", callback_data='vr')
-            ],
-        self.payment_keyboard_markup = InlineKeyboardMarkup(self.payment_keyboard)
+            InlineKeyboardButton("Debit", callback_data='debit'),
+            InlineKeyboardButton("Credit", callback_data='credit'),
+            InlineKeyboardButton("VR", callback_data='vr')
+        ],
+        self.payment_keyboard_markup = InlineKeyboardMarkup(
+            self.payment_keyboard)
 
         application = ApplicationBuilder().token(API_KEY).build()
         item_handler = MessageHandler(filters.ALL, self.process_item)
         application.add_handler(item_handler)
         application.add_handler(CallbackQueryHandler(self.button))
         application.run_polling()
-
-
-
 
     async def process_item(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         chat_id = str(context._chat_id)
@@ -48,14 +44,33 @@ class TelegramBot():
         else:
             return
 
-
         text = update.message.text.split(",")
         try:
-            if len(text) != 2:
-                raise(SyntaxError)
-            self.item['description'] = text[0]
-            self.item['value'] = float(text[1])
-            await update.message.reply_text('Which account?', reply_markup=self.account_keyboard_markup)
+            if text[0] == 'investimento':
+                self.item['type'] = 'investment'
+                self.item['value'] = float(text[1])
+                self.item['account'] = self.item['user']
+                self.sendItem(self.item, context)
+            elif text[0] == 'transferencia':
+                if text[1] == self.item['user']:
+                    self.item['type'] = 'transfer_in'
+                else:
+                    self.item['type'] = 'transfer_out'
+                if text[1] in ['casa', 'joint', 'home']:
+                    self.item['target_account'] = 'joint'
+                else:
+                    self.item['target_account'] = 'tchel'
+                self.item['value'] = float(text[2])
+                self.sendItem(self.item, context)
+
+            elif len(text) != 2:
+                raise (SyntaxError)
+            else:
+
+                self.item['type'] = 'transfer_in'
+                self.item['description'] = text[0]
+                self.item['value'] = float(text[1])
+                await update.message.reply_text('Which account?', reply_markup=self.account_keyboard_markup)
 
         except:
             await context.bot.sendMessage(chat_id=context._chat_id, text=WRONG_FORMAT)
@@ -75,13 +90,12 @@ class TelegramBot():
             await self.payment_type(context)
         elif query.message.reply_markup == self.payment_keyboard_markup:
             self.item['payment'] = query.data
-            await self.addItem(self.item)
-            await context.bot.sendMessage(chat_id=context._chat_id, text='Entry added to the database! uwu')
+            await self.sendItem(self.item, context)
 
-
-    async def addItem(self, item):
-        requests.post("http://localhost:8080/dashboard/insert", json=item, headers ={'Content-Type': 'application/json'})
-
+    async def sendItem(self, item, context):
+        requests.post("http://localhost:8080/dashboard/insert",
+                      json=item, headers={'Content-Type': 'application/json'})
+        await context.bot.sendMessage(chat_id=context._chat_id, text='Entry added to the database! uwu')
 
 
 
