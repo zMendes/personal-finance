@@ -69,7 +69,7 @@ class TelegramBot():
             elif len(text) != 2:
                 raise (SyntaxError)
             else:
-                self.item['type'] = 'transfer_in'
+                self.item['type'] = 'expenses'
                 self.item['description'] = text[0]
                 self.item['value'] = float(text[1])
                 await update.message.reply_text('Which account?', reply_markup=self.account_keyboard_markup)
