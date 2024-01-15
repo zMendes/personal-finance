@@ -96,10 +96,10 @@ def move_to_investment(data):
         transaction_type='investment',
         value=data["value"],
     )
-
     account.balance -= data["value"]
     account.investments += data["value"]
     movement.save()
+    account.save()
     return HttpResponse("Success. UwU")
 
 
