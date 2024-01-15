@@ -1,11 +1,29 @@
 from django.http import HttpResponse
 from dashboard.models import User, Account, Movement
 from django.views.decorators.csrf import csrf_exempt
+from django.shortcuts import get_object_or_404, render
+from django.core import serializers
 import json
 
 
 def index(request):
-    return HttpResponse("Hello, world. You're at the dashboard index.")
+    movements_by_month_year = Movement.objects.values_list("date", flat=True).distinct()
+    months = [x.strftime("%B") for x in movements_by_month_year]
+    years = [x.strftime("%Y") for x in movements_by_month_year]
+
+    return render(request, "home.html", {"months": months, "years": years})
+
+
+def get_movement_from_month_year(request, year, month):
+    from datetime import datetime
+
+    datetime_obj = datetime.strptime(f"{month} {year}", "%B %Y")
+    movement_list = Movement.objects.filter(
+        date__year=year, date__month=datetime_obj.month
+    )
+    data = serializers.serialize("json", movement_list)
+
+    return HttpResponse(data, content_type="application/json")
 
 
 @csrf_exempt
@@ -13,7 +31,6 @@ def add_movement(request):
     if request.method == "POST":
         data = json.loads(request.body.decode("utf-8"))
         transaction_type = data["type"]
-        print(data)
         match transaction_type:
             case "expenses":
                 return process_expense(data)
@@ -30,19 +47,19 @@ def add_movement(request):
 
 
 def add_money(data):
-    print("INSIDE ADD_MONEY")
     user = User.objects.get(name=data["user"])
     account = Account.objects.get(owner=data["account"])
     movement = Movement(
         movement_user=user,
         account_user=account,
-        transaction_type=data['type'],
-        value=data['value']
+        transaction_type=data["type"],
+        value=data["value"],
     )
-    account.balance+= data['value']
+    account.balance += data["value"]
     movement.save()
     account.save()
     return HttpResponse("Success. UwU")
+
 
 def process_expense(data):
     user = User.objects.get(name=data["user"])
@@ -74,7 +91,7 @@ def transfer_money(data):
         description=f"Transfer to {target_account}",
         movement_user=user,
         account_user=account,
-        transaction_type='transfer_out',
+        transaction_type="transfer_out",
         to=target_account,
         value=data["value"],
     )
@@ -93,7 +110,7 @@ def move_to_investment(data):
         description=f"Investment",
         movement_user=user,
         account_user=account,
-        transaction_type='investment',
+        transaction_type="investment",
         value=data["value"],
     )
     account.balance -= data["value"]
