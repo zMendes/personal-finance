@@ -1,0 +1,11 @@
+#cards {
+    display: flex;
+}
+
+#table {
+    margin: 1rem;
+}
+
+#card {
+    margin: 1rem;
+}
