@@ -1,7 +1,7 @@
 function getData() {
 
     cardsDiv.innerHTML = "";
-    fetch(`http://localhost:8080/dashboard/movement_by_month_year/${yearSelect.value}/${monthSelect.value}`)
+    fetch(`http://localhost:8080/dashboard/movement_by_month_year/${accountSelect.value}/${yearSelect.value}/${monthSelect.value}`)
         .then(response => response.json())
         .then(data => createView(data))
 }
@@ -99,6 +99,7 @@ function createCard(key, value) {
 
 let monthSelect = document.getElementById("month-select");
 let yearSelect = document.getElementById("year-select");
+let accountSelect = document.getElementById("account-select");
 let dataDiv = document.getElementById("data");
 let cardsDiv = document.getElementById("cards");
 let container = document.getElementById("table");

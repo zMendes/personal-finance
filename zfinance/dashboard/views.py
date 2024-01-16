@@ -10,16 +10,17 @@ def index(request):
     movements_by_month_year = Movement.objects.values_list("date", flat=True).distinct()
     months = [x.strftime("%B") for x in movements_by_month_year]
     years = [x.strftime("%Y") for x in movements_by_month_year]
+    accounts = list(Account.objects.values_list("owner", flat=True))
+    return render(request, "home.html", {"months": months, "years": years, "accounts":accounts})
 
-    return render(request, "home.html", {"months": months, "years": years})
 
-
-def get_movement_from_month_year(request, year, month):
+def get_movement_from_month_year(request, owner, year, month):
     from datetime import datetime
 
+    account = get_object_or_404(Account, owner=owner)
     datetime_obj = datetime.strptime(f"{month} {year}", "%B %Y")
     movement_list = Movement.objects.filter(
-        date__year=year, date__month=datetime_obj.month
+        date__year=year, date__month=datetime_obj.month, account_user=account
     )
     data = serializers.serialize("json", movement_list)
 

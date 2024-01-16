@@ -25,10 +25,18 @@
         </select>
     </div>
     <div class="input-group mb-3">
-        <span class="input-group-text" id="inputGroup-sizing-default">Month</span>
+        <span class="input-group-text" id="inputGroup-sizing-default">Year</span>
         <select id="year-select" onchange="getData()" class="form-select" aria-label="Default select example">
             {% for year in years %}
             <option value={{year}}>{{year}}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="input-group mb-3">
+        <span class="input-group-text" id="inputGroup-sizing-default">Account</span>
+        <select id="account-select" onchange="getData()" class="form-select" aria-label="Default select example">
+            {% for account in accounts %}
+            <option value={{account}}>{{account}}</option>
             {% endfor %}
         </select>
     </div>
