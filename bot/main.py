@@ -61,8 +61,10 @@ class TelegramBot():
                     self.item['type'] = 'transfer_out'
                     if text[1] in ['casa', 'joint', 'home']:
                         self.item['target_account'] = 'joint'
-                    else:
+                    elif text[1] == 'tchel':
                         self.item['target_account'] = 'tchel'
+                    else:
+                        self.item['target_account'] = 'leo'
                 self.item['value'] = float(text[2])
                 await self.sendItem(self.item, context)
 
