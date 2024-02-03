@@ -45,6 +45,8 @@ def add_movement(request):
                 return give_salary(data)
             case "transfer_in":
                 return add_money(data)
+            case "recharge":
+                return add_vr(data)
 
 
 def add_money(data):
@@ -122,8 +124,37 @@ def move_to_investment(data):
 
 
 def pay_credit_bill(data):
+    user = User.objects.get(name=data["user"])
+    account = Account.objects.get(owner=data["account"])
+    movement = Movement(
+        description="Credit card bill payment",
+        movement_user=user,
+        account_user=account,
+        transaction_type="credit_card_bill",
+        value=account.credit_bill,
+    )
+
+    account.balance -= account.credit_bill
+    account.credit_bill = 0
+    account.save()
+    movement.save()
     return HttpResponse("Success. UwU")
 
+def add_vr(data):
+
+    user = User.objects.get(name=data["user"])
+    account = Account.objects.get(owner=data["account"])
+    movement = Movement(
+        description="Recharing VR",
+        movement_user=user,
+        account_user=account,
+        transaction_type="transfer_in",
+        value=data["value"]
+    )
+    account.balance += data["value"]
+    account.save()
+    movement.save()
+    return HttpResponse("Success. UwU")
 
 def give_salary(data):
     return HttpResponse("Success. UwU")

@@ -47,7 +47,14 @@ class TelegramBot():
         text = [x.strip() for x in update.message.text.lower().split(',')]
 
         try:
-            if text[0] == 'investimento':
+            if text[0] == 'fatura':
+                self.item['type'] = 'credit_card_bill'
+                self.item['account'] = self.item['user']
+            elif text[0] == 'recarga':
+                self.item['type'] = 'recharge'
+                self.item['account'] = f"{self.item['user']}-vr"
+                self.item['value'] = text[1]
+            elif text[0] == 'investimento':
                 self.item['type'] = 'investment'
                 self.item['value'] = float(text[1])
                 self.item['account'] = self.item['user']
